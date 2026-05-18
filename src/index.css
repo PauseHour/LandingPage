@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 40 20% 94%;
+    --card: 0 0% 7%;
+    --card-foreground: 40 20% 94%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 40 20% 94%;
+    --primary: 14 100% 50%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 44 91% 55%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 0 0% 7%;
+    --muted-foreground: 40 10% 60%;
+    --accent: 0 0% 7%;
+    --accent-foreground: 40 20% 94%;
+    --destructive: 14 100% 50%;
+    --destructive-foreground: 0 0% 4%;
+    --border: 0 0% 100% / 0.04;
+    --input: 0 0% 100% / 0.04;
+    --ring: 14 100% 50%;
+    --radius: 0.75rem;
+
+    /* PAUSE HOUR Design Tokens */
+    --pause-void: #0A0A0A;
+    --pause-carbon: #111111;
+    --pause-vermilion: #FF3B00;
+    --pause-orange: #FF6B00;
+    --pause-marigold: #F6C324;
+    --pause-parchment: #F5F2EA;
+    --pause-azure: #1877F2;
+    --pause-green: #2DB400;
+
+    --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  body {
+    background-color: var(--pause-void);
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center top;
+    background-attachment: fixed;
+    color: var(--pause-parchment);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--pause-vermilion);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .btn-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 28px;
+    border-radius: 50px;
+    background: var(--pause-vermilion);
+    color: var(--pause-void);
+    transition: all 0.3s var(--ease-expo);
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn-pill:hover {
+    background: var(--pause-orange);
+    box-shadow: 0 0 24px rgba(255, 59, 0, 0.4);
+  }
+
+  .card-surface {
+    background: var(--pause-carbon);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    transition: border-color 0.4s var(--ease-expo), transform 0.4s var(--ease-expo);
+  }
+
+  .card-surface:hover {
+    border-color: rgba(255, 59, 0, 0.3);
+  }
+}
+
+@keyframes orbRotateY {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-360deg); }
+}
+
+@keyframes orbIntroRotate {
+  from { transform: rotateY(0deg) scale(0.5); }
+  to { transform: rotateY(-360deg) scale(1); }
+}
+
+@keyframes shimmerGradientX {
+  from { background-position: 400% 0; }
+  to { background-position: -400% 0; }
+}
+
+@keyframes underlineHeartbeat {
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(1.05); }
+  100% { transform: scaleY(1); }
+}
