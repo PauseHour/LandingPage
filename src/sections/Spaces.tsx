@@ -147,6 +147,24 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
 
+  // Refs for the two ticker tracks
+  const track1Ref = useRef<HTMLDivElement>(null);
+  const track2Ref = useRef<HTMLDivElement>(null);
+
+  // Animation state for track 1 (left) and track 2 (right/reverse)
+  const offset1 = useRef(0);
+  const offset2 = useRef(0);
+  const dragging1 = useRef(false);
+  const dragging2 = useRef(false);
+  const startX1 = useRef(0);
+  const startOffset1 = useRef(0);
+  const startX2 = useRef(0);
+  const startOffset2 = useRef(0);
+  const raf1 = useRef<number>(0);
+  const raf2 = useRef<number>(0);
+
+  const SPEED = 0.5; // px per frame
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -160,6 +178,82 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Animate track 1 (scroll left)
+  useEffect(() => {
+    const track = track1Ref.current;
+    if (!track) return;
+    const totalWidth = track.scrollWidth / 2;
+    const animate = () => {
+      if (!dragging1.current) {
+        offset1.current += SPEED;
+        if (offset1.current >= totalWidth) offset1.current = 0;
+        track.style.transform = `translateX(-${offset1.current}px)`;
+      }
+      raf1.current = requestAnimationFrame(animate);
+    };
+    raf1.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf1.current);
+  }, []);
+
+  // Animate track 2 (scroll right / reverse)
+  useEffect(() => {
+    const track = track2Ref.current;
+    if (!track) return;
+    const totalWidth = track.scrollWidth / 2;
+    offset2.current = totalWidth / 2; // start mid-way for reverse feel
+    const animate = () => {
+      if (!dragging2.current) {
+        offset2.current -= SPEED;
+        if (offset2.current <= 0) offset2.current = totalWidth;
+        track.style.transform = `translateX(-${offset2.current}px)`;
+      }
+      raf2.current = requestAnimationFrame(animate);
+    };
+    raf2.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf2.current);
+  }, []);
+
+  // Pointer event handlers for track 1
+  const onPointerDown1 = (e: React.PointerEvent) => {
+    dragging1.current = true;
+    startX1.current = e.clientX;
+    startOffset1.current = offset1.current;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove1 = (e: React.PointerEvent) => {
+    if (!dragging1.current) return;
+    const delta = startX1.current - e.clientX;
+    const track = track1Ref.current;
+    if (!track) return;
+    const totalWidth = track.scrollWidth / 2;
+    let newOffset = startOffset1.current + delta;
+    // Wrap offset
+    newOffset = ((newOffset % totalWidth) + totalWidth) % totalWidth;
+    offset1.current = newOffset;
+    track.style.transform = `translateX(-${newOffset}px)`;
+  };
+  const onPointerUp1 = () => { dragging1.current = false; };
+
+  // Pointer event handlers for track 2
+  const onPointerDown2 = (e: React.PointerEvent) => {
+    dragging2.current = true;
+    startX2.current = e.clientX;
+    startOffset2.current = offset2.current;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove2 = (e: React.PointerEvent) => {
+    if (!dragging2.current) return;
+    const delta = startX2.current - e.clientX;
+    const track = track2Ref.current;
+    if (!track) return;
+    const totalWidth = track.scrollWidth / 2;
+    let newOffset = startOffset2.current + delta;
+    newOffset = ((newOffset % totalWidth) + totalWidth) % totalWidth;
+    offset2.current = newOffset;
+    track.style.transform = `translateX(-${newOffset}px)`;
+  };
+  const onPointerUp2 = () => { dragging2.current = false; };
 
   const duplicatedCities = [...cities, ...cities];
   const duplicatedMoreCities = [...moreCities, ...moreCities];
@@ -229,16 +323,30 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
         </div>
       </div>
 
-      {/* Infinite Horizontal Continuous Scroll Ticker */}
+      {/* Infinite Horizontal Continuous Scroll Ticker — Draggable */}
       <div
         className="ticker-wrap"
         style={{
           opacity: inView ? 1 : 0,
           transform: inView ? 'translateY(0)' : 'translateY(40px)',
           transition: 'all 1s cubic-bezier(0.19, 1, 0.22, 1) 0.3s',
+          cursor: 'grab',
+          userSelect: 'none',
         }}
+        onPointerDown={onPointerDown1}
+        onPointerMove={onPointerMove1}
+        onPointerUp={onPointerUp1}
+        onPointerCancel={onPointerUp1}
       >
-        <div className="ticker-track">
+        <div
+          ref={track1Ref}
+          style={{
+            display: 'flex',
+            width: 'max-content',
+            gap: '24px',
+            willChange: 'transform',
+          }}
+        >
           {duplicatedCities.map((city, idx) => (
             <div
               key={`${city.name}-${idx}`}
@@ -394,7 +502,7 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
         </div>
       </div>
 
-      {/* Infinite Horizontal Continuous Scroll Ticker Row 2 (Reverse direction) */}
+      {/* Infinite Horizontal Continuous Scroll Ticker Row 2 — Draggable (Reverse) */}
       <div
         className="ticker-wrap"
         style={{
@@ -402,9 +510,23 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
           transform: inView ? 'translateY(0)' : 'translateY(40px)',
           transition: 'all 1s cubic-bezier(0.19, 1, 0.22, 1) 0.4s',
           marginTop: 12,
+          cursor: 'grab',
+          userSelect: 'none',
         }}
+        onPointerDown={onPointerDown2}
+        onPointerMove={onPointerMove2}
+        onPointerUp={onPointerUp2}
+        onPointerCancel={onPointerUp2}
       >
-        <div className="ticker-track-reverse">
+        <div
+          ref={track2Ref}
+          style={{
+            display: 'flex',
+            width: 'max-content',
+            gap: '24px',
+            willChange: 'transform',
+          }}
+        >
           {duplicatedMoreCities.map((city, idx) => (
             <div
               key={`${city.name}-${idx}`}
@@ -700,29 +822,8 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
           margin-right: calc(-50vw + 50%);
           position: relative;
           padding: 20px 0;
-        }
-        .ticker-track {
-          display: flex;
-          width: max-content;
-          animation: ticker-slide 45s linear infinite;
-          gap: 24px;
-        }
-        .ticker-track-reverse {
-          display: flex;
-          width: max-content;
-          animation: ticker-slide 45s linear infinite reverse;
-          gap: 24px;
-        }
-        .ticker-track:hover, .ticker-track-reverse:hover {
-          animation-play-state: paused;
-        }
-        @keyframes ticker-slide {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          100% {
-            transform: translate3d(-50%, 0, 0);
-          }
+          -webkit-overflow-scrolling: touch;
+          touch-action: pan-y;
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; }

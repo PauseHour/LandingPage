@@ -28,16 +28,16 @@ const steps = [
   },
 ];
 
-function PausePassCard({ index }: { index: number }) {
+function PausePassCard({ index, isMobile }: { index: number; isMobile?: boolean }) {
   return (
     <div
       style={{
         width: '100%',
-        maxWidth: '280px',
-        height: '380px',
+        maxWidth: isMobile ? '140px' : '280px',
+        height: isMobile ? '200px' : '380px',
         background: 'linear-gradient(180deg, #141414 0%, #0a0a0a 100%)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '24px',
+        borderRadius: isMobile ? '12px' : '24px',
         boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 59, 0, 0.03)',
         position: 'relative',
         overflow: 'hidden',
@@ -334,7 +334,7 @@ function PausePassCard({ index }: { index: number }) {
   );
 }
 
-function JourneyClock({ activeIndex }: { activeIndex: number }) {
+function JourneyClock({ activeIndex, isMobile }: { activeIndex: number; isMobile?: boolean }) {
   const stepDetails = [
     { hourAngle: 330, minuteAngle: 0, progress: 0.15 },
     { hourAngle: 337.5, minuteAngle: 90, progress: 0.4 },
@@ -348,8 +348,8 @@ function JourneyClock({ activeIndex }: { activeIndex: number }) {
   const strokeDashoffset = circumference - (circumference * details.progress);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', position: 'relative' }}>
-      <svg width="130" height="130" viewBox="0 0 160 160">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '6px' : '12px', position: 'relative' }}>
+      <svg width={isMobile ? '80' : '130'} height={isMobile ? '80' : '130'} viewBox="0 0 160 160">
         {/* Background track circle */}
         <circle
           cx="80"
@@ -435,8 +435,8 @@ function JourneyClock({ activeIndex }: { activeIndex: number }) {
         />
       </svg>
       <div style={{ textAlign: 'center' }}>
-        <span style={{ fontSize: '9px', fontFamily: '"JetBrains Mono", monospace', color: 'rgba(245, 242, 234, 0.4)', letterSpacing: '0.1em' }}>TIMELINE ACTIVE</span>
-        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FFF', fontFamily: '"Space Grotesk", sans-serif', marginTop: '2px', textShadow: '0 0 8px rgba(255,255,255,0.1)' }}>
+        <span style={{ fontSize: isMobile ? '7px' : '9px', fontFamily: '"JetBrains Mono", monospace', color: 'rgba(245, 242, 234, 0.4)', letterSpacing: '0.1em' }}>TIMELINE ACTIVE</span>
+        <div style={{ fontSize: isMobile ? '14px' : '24px', fontWeight: 'bold', color: '#FFF', fontFamily: '"Space Grotesk", sans-serif', marginTop: '2px', textShadow: '0 0 8px rgba(255,255,255,0.1)' }}>
           {steps[activeIndex].time}
         </div>
       </div>
@@ -585,45 +585,32 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
           </p>
         </div>
 
-        {/* Mobile Journey Clock (Centered above the timeline list) */}
-        {isMobile && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '24px',
-              marginBottom: '40px',
-              opacity: inView ? 1 : 0,
-              transition: 'opacity 1s ease 0.3s',
-            }}
-          >
-            <JourneyClock activeIndex={activeIndex} />
-            <PausePassCard index={activeIndex} />
-          </div>
-        )}
+        {/* Mobile and Desktop both use same two-column layout below */}
 
         {/* Layout container */}
         <div className="flex flex-col md:flex-row relative" style={{ gap: isMobile ? '30px' : '60px' }}>
           
-          {/* Left Column: Sticky Mockup and Clock (Desktop only) */}
+          {/* Left Column: Sticky Clock + Card — shown on ALL screen sizes */}
           <div
-            className="hidden md:flex"
             style={{
-              width: '40%',
+              width: isMobile ? '38%' : '40%',
               position: 'sticky',
-              top: '15vh',
-              height: '70vh',
+              top: isMobile ? '80px' : '15vh',
+              height: isMobile ? 'fit-content' : '70vh',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              gap: '40px',
-              paddingRight: '20px',
+              gap: isMobile ? '20px' : '40px',
+              paddingRight: isMobile ? '8px' : '20px',
               borderRight: '1px solid rgba(255, 255, 255, 0.04)',
+              display: 'flex',
+              opacity: inView ? 1 : 0,
+              transition: 'opacity 1s ease 0.3s',
+              alignSelf: 'flex-start',
             }}
           >
-            <JourneyClock activeIndex={activeIndex} />
-            <PausePassCard index={activeIndex} />
+            <JourneyClock activeIndex={activeIndex} isMobile={isMobile} />
+            <PausePassCard index={activeIndex} isMobile={isMobile} />
           </div>
 
           {/* Right Column: Timeline elements */}
@@ -667,9 +654,9 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   className="step-card-trigger flex flex-col md:flex-row relative"
                   data-index={i}
                   style={{
-                    paddingLeft: isMobile ? '36px' : 'clamp(32px, 6vw, 80px)',
-                    paddingTop: isMobile ? '16px' : '32px',
-                    paddingBottom: isMobile ? '40px' : 'clamp(48px, 10vh, 120px)',
+                    paddingLeft: isMobile ? '24px' : 'clamp(32px, 6vw, 80px)',
+                    paddingTop: isMobile ? '12px' : '32px',
+                    paddingBottom: isMobile ? '28px' : 'clamp(48px, 10vh, 120px)',
                     opacity: inView ? 1 : 0,
                     transform: inView ? 'translateY(0)' : 'translateY(40px)',
                     transition: `all 0.8s cubic-bezier(0.19, 1, 0.22, 1) ${0.2 + i * 0.1}s`,
@@ -679,10 +666,10 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   <div
                     style={{
                       position: 'absolute',
-                      left: isMobile ? '7px' : 'calc(clamp(16px, 3vw, 32px) - 5px)',
-                      top: isMobile ? '22px' : '40px',
-                      width: '12px',
-                      height: '12px',
+                      left: isMobile ? '5px' : 'calc(clamp(16px, 3vw, 32px) - 5px)',
+                      top: isMobile ? '18px' : '40px',
+                      width: isMobile ? '10px' : '12px',
+                      height: isMobile ? '10px' : '12px',
                       borderRadius: '50%',
                       background: isActive ? '#FF3B00' : (activeIndex > i ? '#FF3B00' : '#0A0A0A'),
                       border: activeIndex >= i ? '2px solid #FF3B00' : '2px solid rgba(255, 255, 255, 0.2)',
@@ -696,11 +683,11 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   <div
                     className="font-mono md:w-1/4 shrink-0"
                     style={{
-                      fontSize: 14,
+                      fontSize: isMobile ? 10 : 14,
                       color: isActive ? '#FF3B00' : 'rgba(255, 59, 0, 0.5)',
-                      letterSpacing: '0.1em',
-                      marginBottom: isMobile ? '8px' : '12px',
-                      marginTop: isMobile ? '16px' : '34px',
+                      letterSpacing: isMobile ? '0.04em' : '0.1em',
+                      marginBottom: isMobile ? '6px' : '12px',
+                      marginTop: isMobile ? '12px' : '34px',
                       fontWeight: isActive ? 'bold' : 'normal',
                       transition: 'all 0.4s ease',
                     }}
@@ -712,7 +699,7 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   <div
                     className="card-surface grow flex flex-col"
                     style={{
-                      padding: isMobile ? '20px' : 'clamp(16px, 4vw, 32px)',
+                      padding: isMobile ? '10px 12px' : 'clamp(16px, 4vw, 32px)',
                       borderColor: isActive ? 'rgba(255, 59, 0, 0.6)' : 'rgba(255, 255, 255, 0.04)',
                       boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.08)' : 'none',
                       opacity: isMobile ? 1 : (isActive ? 1 : 0.35),
@@ -722,14 +709,14 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   >
                     <h3
                       className="font-display"
-                      style={{ fontSize: 22, color: '#FFF', marginBottom: 12 }}
+                      style={{ fontSize: isMobile ? 14 : 22, color: '#FFF', marginBottom: isMobile ? 6 : 12 }}
                     >
                       {step.title}
                     </h3>
                     <p
                       className="font-body"
                       style={{
-                        fontSize: 15,
+                        fontSize: isMobile ? 11 : 15,
                         color: 'rgba(245, 242, 234, 0.6)',
                         lineHeight: 1.6,
                       }}
