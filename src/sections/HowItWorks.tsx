@@ -590,33 +590,65 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
         {/* Layout container */}
         <div className="flex flex-col md:flex-row relative" style={{ gap: isMobile ? '30px' : '60px' }}>
           
-          {/* Left Column: Sticky Clock + Card — shown on ALL screen sizes */}
-          <div
-            style={{
-              width: isMobile ? '38%' : '40%',
-              position: 'sticky',
-              top: isMobile ? '80px' : '15vh',
-              height: isMobile ? 'fit-content' : '70vh',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: isMobile ? '20px' : '40px',
-              paddingRight: isMobile ? '8px' : '20px',
-              borderRight: '1px solid rgba(255, 255, 255, 0.04)',
-              display: 'flex',
-              opacity: inView ? 1 : 0,
-              transition: 'opacity 1s ease 0.3s',
-              alignSelf: 'flex-start',
-            }}
-          >
-            <JourneyClock activeIndex={activeIndex} isMobile={isMobile} />
-            <PausePassCard index={activeIndex} isMobile={isMobile} />
-          </div>
+          {/* Mobile: compact sticky top bar showing current step */}
+          {isMobile && (
+            <div
+              style={{
+                position: 'sticky',
+                top: '60px',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+                padding: '12px 16px',
+                background: 'rgba(10, 10, 10, 0.92)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 59, 0, 0.15)',
+                borderRadius: '12px',
+                marginBottom: '24px',
+                opacity: inView ? 1 : 0,
+                transition: 'opacity 0.6s ease',
+              }}
+            >
+              <JourneyClock activeIndex={activeIndex} isMobile={true} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '8px', fontFamily: '"JetBrains Mono", monospace', color: 'rgba(245, 242, 234, 0.4)', letterSpacing: '0.12em' }}>CURRENT STEP</span>
+                <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#FFF', fontFamily: '"Space Grotesk", sans-serif' }}>{steps[activeIndex].time}</span>
+                <span style={{ fontSize: '10px', fontFamily: '"Space Grotesk", sans-serif', color: '#FF3B00', fontWeight: 600 }}>{steps[activeIndex].title}</span>
+              </div>
+            </div>
+          )}
 
-          {/* Right Column: Timeline elements */}
+          {/* Desktop: Sticky left column with clock + card */}
+          {!isMobile && (
+            <div
+              style={{
+                width: '40%',
+                position: 'sticky',
+                top: '15vh',
+                height: '70vh',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '40px',
+                paddingRight: '20px',
+                borderRight: '1px solid rgba(255, 255, 255, 0.04)',
+                display: 'flex',
+                opacity: inView ? 1 : 0,
+                transition: 'opacity 1s ease 0.3s',
+                alignSelf: 'flex-start',
+              }}
+            >
+              <JourneyClock activeIndex={activeIndex} isMobile={false} />
+              <PausePassCard index={activeIndex} isMobile={false} />
+            </div>
+          )}
+
+          {/* Right/Full Column: Timeline elements */}
           <div
-            className="w-full md:w-[60%]"
             style={{
+              width: isMobile ? '100%' : '60%',
               position: 'relative',
             }}
           >

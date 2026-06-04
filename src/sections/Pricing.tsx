@@ -167,6 +167,13 @@ const passes: ResortPass[] = [
 export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: string) => void }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const draggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const startOffsetRef = useRef(0);
+  const rafRef = useRef<number>(0);
+  const SPEED = 0.5;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -181,6 +188,42 @@ export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: st
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // RAF auto-scroll
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const animate = () => {
+      if (!draggingRef.current) {
+        const totalWidth = track.scrollWidth / 2;
+        offsetRef.current += SPEED;
+        if (offsetRef.current >= totalWidth) offsetRef.current = 0;
+        track.style.transform = `translateX(-${offsetRef.current}px)`;
+      }
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    draggingRef.current = true;
+    startXRef.current = e.clientX;
+    startOffsetRef.current = offsetRef.current;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!draggingRef.current) return;
+    const track = trackRef.current;
+    if (!track) return;
+    const totalWidth = track.scrollWidth / 2;
+    const delta = startXRef.current - e.clientX;
+    let newOffset = startOffsetRef.current + delta;
+    newOffset = ((newOffset % totalWidth) + totalWidth) % totalWidth;
+    offsetRef.current = newOffset;
+    track.style.transform = `translateX(-${newOffset}px)`;
+  };
+  const onPointerUp = () => { draggingRef.current = false; };
 
   const duplicatedPasses = [...passes, ...passes];
 
@@ -283,16 +326,30 @@ export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: st
         </div>
       </div>
 
-      {/* Infinite Horizontal Continuous Scroll Ticker for Passes */}
+      {/* Draggable Experiences Ticker */}
       <div
         className="ticker-wrap"
         style={{
           opacity: inView ? 1 : 0,
           transform: inView ? 'translateY(0)' : 'translateY(40px)',
           transition: 'all 1s cubic-bezier(0.19, 1, 0.22, 1) 0.3s',
+          cursor: 'grab',
+          userSelect: 'none',
         }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
-        <div className="ticker-track">
+        <div
+          ref={trackRef}
+          style={{
+            display: 'flex',
+            width: 'max-content',
+            gap: '24px',
+            willChange: 'transform',
+          }}
+        >
           {duplicatedPasses.map((pass, idx) => (
             <div
               key={`${pass.id}-${idx}`}
@@ -479,7 +536,7 @@ export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: st
             {[
               { label: 'Waitlist Price Lock', desc: 'Lock today\'s low rates forever' },
               { label: 'Flexible booking', desc: 'No-charge cancellation anytime' },
-              { label: 'Quality Guarantee', desc: 'We only partner with 4 & 5-star properties' },
+              { label: 'Quality Guarantee', desc: 'Partnership with Best Hotels' },
             ].map((item) => (
               <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: '200px', justifyContent: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F6C324" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -513,23 +570,7 @@ export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: st
           margin-right: calc(-50vw + 50%);
           position: relative;
           padding: 20px 0;
-        }
-        .ticker-track {
-          display: flex;
-          width: max-content;
-          animation: ticker-slide 45s linear infinite;
-          gap: 24px;
-        }
-        .ticker-track:hover {
-          animation-play-state: paused;
-        }
-        @keyframes ticker-slide {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          100% {
-            transform: translate3d(-50%, 0, 0);
-          }
+          touch-action: pan-y;
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; }
