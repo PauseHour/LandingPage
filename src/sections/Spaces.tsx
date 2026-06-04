@@ -146,8 +146,6 @@ const moreCities: CityData[] = [
 export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: string) => void }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
   // Refs for the two ticker tracks
   const track1Ref = useRef<HTMLDivElement>(null);
   const track2Ref = useRef<HTMLDivElement>(null);
@@ -178,13 +176,6 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Animate track 1 (scroll left)
@@ -359,8 +350,8 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
             <div
               key={`${city.name}-${idx}`}
               style={{
-                flex: `0 0 ${isMobile ? 180 : 280}px`,
-                height: isMobile ? 200 : 380,
+                flex: '0 0 280px',
+                height: 380,
                 position: 'relative',
                 borderRadius: 16,
                 overflow: 'hidden',
@@ -539,8 +530,8 @@ export default function Spaces({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
             <div
               key={`${city.name}-${idx}`}
               style={{
-                flex: `0 0 ${isMobile ? 180 : 280}px`,
-                height: isMobile ? 200 : 380,
+                flex: '0 0 280px',
+                height: 380,
                 position: 'relative',
                 borderRadius: 16,
                 overflow: 'hidden',

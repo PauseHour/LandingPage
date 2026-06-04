@@ -471,24 +471,41 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
 
     // 2. Window scroll event listener to detect active step card
     const handleScroll = () => {
-      const cardElements = document.querySelectorAll('.step-card-trigger');
-      if (!cardElements.length) return;
-      
-      let closestIndex = 0;
-      let closestDist = Infinity;
-      const centerY = window.innerHeight / 2.2;
-      
-      cardElements.forEach((el, index) => {
-        const rect = el.getBoundingClientRect();
-        const cardCenter = rect.top + rect.height / 2;
-        const dist = Math.abs(cardCenter - centerY);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestIndex = index;
+      const isMobileView = window.innerWidth < 768;
+      if (isMobileView) {
+        if (!sectionRef.current) return;
+        const rect = sectionRef.current.getBoundingClientRect();
+        const totalHeight = rect.height;
+        const windowHeight = window.innerHeight;
+        
+        // Sticky container has top: 90px
+        const scrolled = 90 - rect.top;
+        const scrollable = totalHeight - windowHeight - 90;
+        if (scrollable > 0) {
+          const progress = Math.max(0, Math.min(1, scrolled / scrollable));
+          const idx = Math.min(3, Math.floor(progress * 4));
+          setActiveIndex(idx);
         }
-      });
-      
-      setActiveIndex(closestIndex);
+      } else {
+        const cardElements = document.querySelectorAll('.step-card-trigger');
+        if (!cardElements.length) return;
+        
+        let closestIndex = 0;
+        let closestDist = Infinity;
+        const centerY = window.innerHeight / 2.2;
+        
+        cardElements.forEach((el, index) => {
+          const rect = el.getBoundingClientRect();
+          const cardCenter = rect.top + rect.height / 2;
+          const dist = Math.abs(cardCenter - centerY);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestIndex = index;
+          }
+        });
+        
+        setActiveIndex(closestIndex);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -588,40 +605,99 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
         {/* Mobile and Desktop both use same two-column layout below */}
 
         {/* Layout container */}
-        <div className="flex flex-col md:flex-row relative" style={{ gap: isMobile ? '30px' : '60px' }}>
-          
-          {/* Mobile: compact sticky top bar showing current step */}
-          {isMobile && (
+        {isMobile ? (
+          <div
+            style={{
+              position: 'relative',
+              height: '240vh',
+              width: '100%',
+            }}
+          >
             <div
               style={{
                 position: 'sticky',
-                top: '60px',
-                zIndex: 10,
+                top: '90px',
+                height: 'calc(100vh - 120px)',
                 display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px',
-                padding: '12px 16px',
-                background: 'rgba(10, 10, 10, 0.92)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 59, 0, 0.15)',
-                borderRadius: '12px',
-                marginBottom: '24px',
-                opacity: inView ? 1 : 0,
-                transition: 'opacity 0.6s ease',
+                gap: '12px',
+                padding: '16px 0',
               }}
             >
+              {/* Clock on top */}
               <JourneyClock activeIndex={activeIndex} isMobile={true} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <span style={{ fontSize: '8px', fontFamily: '"JetBrains Mono", monospace', color: 'rgba(245, 242, 234, 0.4)', letterSpacing: '0.12em' }}>CURRENT STEP</span>
-                <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#FFF', fontFamily: '"Space Grotesk", sans-serif' }}>{steps[activeIndex].time}</span>
-                <span style={{ fontSize: '10px', fontFamily: '"Space Grotesk", sans-serif', color: '#FF3B00', fontWeight: 600 }}>{steps[activeIndex].title}</span>
+
+              {/* Content in the middle (fades between steps) */}
+              <div style={{ position: 'relative', width: '100%', height: '145px' }}>
+                {steps.map((step, idx) => {
+                  const isActive = activeIndex === idx;
+                  return (
+                    <div
+                      key={idx}
+                      className="card-surface"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        opacity: isActive ? 1 : 0,
+                        transform: isActive ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
+                        pointerEvents: isActive ? 'auto' : 'none',
+                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        padding: '12px 16px',
+                        border: '1px solid rgba(255, 59, 0, 0.25)',
+                        boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.15)' : 'none',
+                      }}
+                    >
+                      <h3 className="font-display" style={{ fontSize: 14, color: '#FFF', marginBottom: 4 }}>
+                        {step.title}
+                      </h3>
+                      <p className="font-body" style={{ fontSize: 11, color: 'rgba(245, 242, 234, 0.7)', lineHeight: 1.45 }}>
+                        {step.body}
+                      </p>
+                      <div className="font-mono" style={{ fontSize: 9, color: '#FF3B00', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {step.duration}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Phone Screen mockup below */}
+              <div style={{ position: 'relative', width: '100%', height: '200px', display: 'flex', justifyContent: 'center' }}>
+                {steps.map((_, idx) => {
+                  const isActive = activeIndex === idx;
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        opacity: isActive ? 1 : 0,
+                        transform: isActive ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
+                        pointerEvents: isActive ? 'auto' : 'none',
+                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <PausePassCard index={idx} isMobile={true} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          )}
-
-          {/* Desktop: Sticky left column with clock + card */}
-          {!isMobile && (
+          </div>
+        ) : (
+          <div className="flex flex-row relative" style={{ gap: '60px' }}>
+            {/* Desktop: Sticky left column with clock + card */}
             <div
               style={{
                 width: '40%',
@@ -643,140 +719,139 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
               <JourneyClock activeIndex={activeIndex} isMobile={false} />
               <PausePassCard index={activeIndex} isMobile={false} />
             </div>
-          )}
 
-          {/* Right/Full Column: Timeline elements */}
-          <div
-            style={{
-              width: isMobile ? '100%' : '60%',
-              position: 'relative',
-            }}
-          >
-            {/* Background Line */}
+            {/* Right Column: Timeline elements */}
             <div
               style={{
-                position: 'absolute',
-                top: '40px',
-                bottom: isMobile ? '60px' : '120px',
-                left: isMobile ? '12px' : 'clamp(16px, 3vw, 32px)',
-                width: '2px',
-                background: 'rgba(255, 255, 255, 0.04)',
+                width: '60%',
+                position: 'relative',
               }}
-            />
+            >
+              {/* Background Line */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '40px',
+                  bottom: '120px',
+                  left: 'clamp(16px, 3vw, 32px)',
+                  width: '2px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                }}
+              />
 
-            {/* Scroll-driven Progress Line */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '40px',
-                height: `${(activeIndex / (steps.length - 1)) * (100 - (isMobile ? 100 : 160) / steps.length)}%`, // Dynamic height matching current active step node
-                left: isMobile ? '12px' : 'clamp(16px, 3vw, 32px)',
-                width: '2px',
-                background: 'linear-gradient(to bottom, #FF3B00 0%, #FF6B00 100%)',
-                boxShadow: '0 0 12px rgba(255, 59, 0, 0.6)',
-                transition: 'height 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            />
+              {/* Scroll-driven Progress Line */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '40px',
+                  height: `${(activeIndex / (steps.length - 1)) * (100 - 160 / steps.length)}%`,
+                  left: 'clamp(16px, 3vw, 32px)',
+                  width: '2px',
+                  background: 'linear-gradient(to bottom, #FF3B00 0%, #FF6B00 100%)',
+                  boxShadow: '0 0 12px rgba(255, 59, 0, 0.6)',
+                  transition: 'height 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              />
 
-            {steps.map((step, i) => {
-              const isActive = activeIndex === i;
-              return (
-                <div
-                  key={i}
-                  className="step-card-trigger flex flex-col md:flex-row relative"
-                  data-index={i}
-                  style={{
-                    paddingLeft: isMobile ? '24px' : 'clamp(32px, 6vw, 80px)',
-                    paddingTop: isMobile ? '12px' : '32px',
-                    paddingBottom: isMobile ? '28px' : 'clamp(48px, 10vh, 120px)',
-                    opacity: inView ? 1 : 0,
-                    transform: inView ? 'translateY(0)' : 'translateY(40px)',
-                    transition: `all 0.8s cubic-bezier(0.19, 1, 0.22, 1) ${0.2 + i * 0.1}s`,
-                  }}
-                >
-                  {/* Dot */}
+              {steps.map((step, i) => {
+                const isActive = activeIndex === i;
+                return (
                   <div
+                    key={i}
+                    className="step-card-trigger flex flex-col md:flex-row relative"
+                    data-index={i}
                     style={{
-                      position: 'absolute',
-                      left: isMobile ? '5px' : 'calc(clamp(16px, 3vw, 32px) - 5px)',
-                      top: isMobile ? '18px' : '40px',
-                      width: isMobile ? '10px' : '12px',
-                      height: isMobile ? '10px' : '12px',
-                      borderRadius: '50%',
-                      background: isActive ? '#FF3B00' : (activeIndex > i ? '#FF3B00' : '#0A0A0A'),
-                      border: activeIndex >= i ? '2px solid #FF3B00' : '2px solid rgba(255, 255, 255, 0.2)',
-                      boxShadow: activeIndex >= i ? '0 0 15px rgba(255, 59, 0, 0.8)' : 'none',
-                      transition: 'all 0.4s ease',
-                      zIndex: 2,
-                    }}
-                  />
-
-                  {/* Stamp */}
-                  <div
-                    className="font-mono md:w-1/4 shrink-0"
-                    style={{
-                      fontSize: isMobile ? 10 : 14,
-                      color: isActive ? '#FF3B00' : 'rgba(255, 59, 0, 0.5)',
-                      letterSpacing: isMobile ? '0.04em' : '0.1em',
-                      marginBottom: isMobile ? '6px' : '12px',
-                      marginTop: isMobile ? '12px' : '34px',
-                      fontWeight: isActive ? 'bold' : 'normal',
-                      transition: 'all 0.4s ease',
+                      paddingLeft: 'clamp(32px, 6vw, 80px)',
+                      paddingTop: '32px',
+                      paddingBottom: 'clamp(48px, 10vh, 120px)',
+                      opacity: inView ? 1 : 0,
+                      transform: inView ? 'translateY(0)' : 'translateY(40px)',
+                      transition: `all 0.8s cubic-bezier(0.19, 1, 0.22, 1) ${0.2 + i * 0.1}s`,
                     }}
                   >
-                    {step.time}
-                  </div>
-
-                  {/* Card content */}
-                  <div
-                    className="card-surface grow flex flex-col"
-                    style={{
-                      padding: isMobile ? '10px 12px' : 'clamp(16px, 4vw, 32px)',
-                      borderColor: isActive ? 'rgba(255, 59, 0, 0.6)' : 'rgba(255, 255, 255, 0.04)',
-                      boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.08)' : 'none',
-                      opacity: isMobile ? 1 : (isActive ? 1 : 0.35),
-                      transform: isMobile ? 'none' : (isActive ? 'scale(1.02)' : 'scale(0.97)'),
-                      transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-                    }}
-                  >
-                    <h3
-                      className="font-display"
-                      style={{ fontSize: isMobile ? 14 : 22, color: '#FFF', marginBottom: isMobile ? 6 : 12 }}
-                    >
-                      {step.title}
-                    </h3>
-                    <p
-                      className="font-body"
-                      style={{
-                        fontSize: isMobile ? 11 : 15,
-                        color: 'rgba(245, 242, 234, 0.6)',
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {step.body}
-                    </p>
+                    {/* Dot */}
                     <div
-                      className="font-mono"
                       style={{
-                        fontSize: 11,
-                        color: isActive ? '#FF3B00' : 'rgba(245, 242, 234, 0.3)',
-                        marginTop: 20,
-                        paddingTop: 16,
-                        borderTop: '1px solid rgba(255, 255, 255, 0.04)',
-                        textTransform: 'uppercase',
+                        position: 'absolute',
+                        left: 'calc(clamp(16px, 3vw, 32px) - 5px)',
+                        top: '40px',
+                        width: '12px',
+                        height: '12px',
+                        borderRadius: '50%',
+                        background: isActive ? '#FF3B00' : (activeIndex > i ? '#FF3B00' : '#0A0A0A'),
+                        border: activeIndex >= i ? '2px solid #FF3B00' : '2px solid rgba(255, 255, 255, 0.2)',
+                        boxShadow: activeIndex >= i ? '0 0 15px rgba(255, 59, 0, 0.8)' : 'none',
+                        transition: 'all 0.4s ease',
+                        zIndex: 2,
+                      }}
+                    />
+
+                    {/* Stamp */}
+                    <div
+                      className="font-mono w-1/4 shrink-0"
+                      style={{
+                        fontSize: 14,
+                        color: isActive ? '#FF3B00' : 'rgba(255, 59, 0, 0.5)',
                         letterSpacing: '0.1em',
+                        marginBottom: '12px',
+                        marginTop: '34px',
+                        fontWeight: isActive ? 'bold' : 'normal',
                         transition: 'all 0.4s ease',
                       }}
                     >
-                      {step.duration}
+                      {step.time}
+                    </div>
+
+                    {/* Card content */}
+                    <div
+                      className="card-surface grow flex flex-col"
+                      style={{
+                        padding: 'clamp(16px, 4vw, 32px)',
+                        borderColor: isActive ? 'rgba(255, 59, 0, 0.6)' : 'rgba(255, 255, 255, 0.04)',
+                        boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.08)' : 'none',
+                        opacity: isActive ? 1 : 0.35,
+                        transform: isActive ? 'scale(1.02)' : 'scale(0.97)',
+                        transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                      }}
+                    >
+                      <h3
+                        className="font-display"
+                        style={{ fontSize: 22, color: '#FFF', marginBottom: 12 }}
+                      >
+                        {step.title}
+                      </h3>
+                      <p
+                        className="font-body"
+                        style={{
+                          fontSize: 15,
+                          color: 'rgba(245, 242, 234, 0.6)',
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {step.body}
+                      </p>
+                      <div
+                        className="font-mono"
+                        style={{
+                          fontSize: 11,
+                          color: isActive ? '#FF3B00' : 'rgba(245, 242, 234, 0.3)',
+                          marginTop: 20,
+                          paddingTop: 16,
+                          borderTop: '1px solid rgba(255, 255, 255, 0.04)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          transition: 'all 0.4s ease',
+                        }}
+                      >
+                        {step.duration}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-
-        </div>
+        )}
 
         {/* CTA */}
         <div
