@@ -22,9 +22,9 @@ function generateHourglassData(pointCount: number, xOffset: number): PointData[]
 
   // Outer Hourglass Shell (The "Flow" of Time / Transit)
   for (let i = 0; i < shellCount; i++) {
-    const y = (Math.random() - 0.5) * 6.0; // Height from -3.0 to 3.0
-    const normalizedY = (y / 3.0);
-    const radius = 0.3 + 1.2 * (normalizedY * normalizedY); 
+    const y = (Math.random() - 0.5) * 8.0; // Height from -4.0 to 4.0
+    const normalizedY = (y / 4.0);
+    const radius = 0.4 + 1.6 * (normalizedY * normalizedY); 
     const angle = Math.random() * Math.PI * 2;
     
     const x = Math.cos(angle) * radius;
@@ -54,7 +54,7 @@ function generateHourglassData(pointCount: number, xOffset: number): PointData[]
     const v = Math.random();
     const theta = u * 2.0 * Math.PI;
     const phi = Math.acos(2.0 * v - 1.0);
-    const r = 0.5 * Math.cbrt(Math.random()); 
+    const r = 0.85 * Math.cbrt(Math.random()); 
     
     const x = r * Math.sin(phi) * Math.cos(theta);
     const y = r * Math.cos(phi); 
@@ -118,7 +118,7 @@ export default function WireframeHotel() {
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const camY = isMobile ? -3.5 : 0;
-    camera.position.set(0, camY, isMobile ? 14 : 9); // Shift entire scene up on mobile
+    camera.position.set(0, camY, isMobile ? 12 : 7.0); // Shift entire scene up on mobile
     camera.lookAt(0, camY, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -128,7 +128,7 @@ export default function WireframeHotel() {
     rendererRef.current = renderer;
     container.appendChild(renderer.domElement);
 
-    const targetOffset = isMobile ? 0 : 3.5;
+    const targetOffset = isMobile ? 0 : 2.2;
     const points = generateHourglassData(pointCount, targetOffset);
 
     const geometry = new THREE.BufferGeometry();
@@ -211,11 +211,11 @@ export default function WireframeHotel() {
 
         // Mathematical Flow Animation
         if (p.type === 'shell') {
-           let flowY = p.yOffset - time * 0.25; 
-           flowY = ((flowY + 3.0) % 6.0 + 6.0) % 6.0 - 3.0;
+           let flowY = p.yOffset - time * 0.35; 
+           flowY = ((flowY + 4.0) % 8.0 + 8.0) % 8.0 - 4.0;
            
-           const normalizedY = (flowY / 3.0);
-           const radius = 0.3 + 1.2 * (normalizedY * normalizedY);
+           const normalizedY = (flowY / 4.0);
+           const radius = 0.4 + 1.6 * (normalizedY * normalizedY);
            const currentAngle = p.angle + time * 0.1 + normalizedY * 1.5;
 
            structuredTx = targetOffset + Math.cos(currentAngle) * radius;

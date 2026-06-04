@@ -114,7 +114,7 @@ export default function Hero({ onOpenWaitlist }: { onOpenWaitlist: (plan?: strin
           }}
         >
           <Magnetic>
-            <button className="btn-pill" onClick={() => onOpenWaitlist()}>
+            <button className="btn-pill" onClick={() => onOpenWaitlist('Hero CTA Button')}>
               Join the Waitlist — It&apos;s Free
             </button>
           </Magnetic>
@@ -125,17 +125,17 @@ export default function Hero({ onOpenWaitlist }: { onOpenWaitlist: (plan?: strin
           className="flex items-center"
           style={{
             gap: 16,
-            marginTop: 24,
+            marginTop: 36,
             opacity: visible ? 1 : 0,
             transition: 'opacity 1s cubic-bezier(0.19, 1, 0.22, 1) 0.6s',
           }}
         >
           <div className="flex" style={{ marginLeft: 4 }}>
             {[
-              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&crop=face',
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face',
-              'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face',
-              'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1507152832244-10d45db7e3b9?w=64&h=64&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=64&h=64&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1614082242765-7c98cd0d3df3?w=64&h=64&fit=crop&crop=face',
             ].map((src, i) => (
               <img
                 key={i}

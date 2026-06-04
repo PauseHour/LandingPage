@@ -28,7 +28,9 @@ export const submitWaitlist = async (name: string, email: string, plan?: string)
       throw error;
     }
 
-    // 2. Identify the user in PostHog so all future clicks are tied to their email
+
+
+    // 3. Identify the user in PostHog so all future clicks are tied to their email
     posthog.identify(email, { name, plan });
     posthog.capture('waitlist_submission_success', { plan });
 

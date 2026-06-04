@@ -4,7 +4,7 @@ const manifestoLines = [
   "WE ARE NOT A HOTEL.",
   "WE ARE NOT A LOUNGE.",
   "WE ARE THE SPACE BETWEEN.",
-  "₹99. FOUR HOURS. INFINITE DIGNITY.",
+  "₹99. INFINITE DIGNITY.",
   "BETWEEN CHECKOUT AND TAKEOFF,",
   "PAUSE.",
 ];
@@ -78,11 +78,10 @@ export default function Manifesto() {
     <section
       ref={sectionRef}
       style={{
-        background: '#111111',
-        padding: 'clamp(100px, 20vh, 200px) clamp(24px, 5vw, 80px)',
+        background: 'transparent',
+        padding: 'clamp(60px, 10vh, 110px) clamp(24px, 5vw, 80px)',
         position: 'relative',
         zIndex: 2,
-        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

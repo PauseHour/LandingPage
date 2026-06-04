@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 const navLinks = [
   { label: 'Spaces', href: '#cities' },
@@ -8,24 +8,15 @@ const navLinks = [
 
 export default function Navigation({ onOpenWaitlist }: { onOpenWaitlist: (plan?: string) => void }) {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  const handleScroll = useCallback(() => {
-    const currentY = window.scrollY;
-    setScrolled(currentY > 100);
-    if (currentY > lastScrollY && currentY > 200) {
-      setHidden(true);
-    } else {
-      setHidden(false);
-    }
-    setLastScrollY(currentY);
-  }, [lastScrollY]);
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+  }, []);
 
   const scrollTo = (href: string) => {
     const el = document.querySelector(href);
@@ -36,35 +27,43 @@ export default function Navigation({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-400"
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
-        transitionTimingFunction: 'cubic-bezier(0.19, 1, 0.22, 1)',
-        background: scrolled ? 'rgba(10, 10, 10, 0.9)' : 'transparent',
+        background: scrolled ? 'rgba(10, 10, 10, 0.85)' : 'transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(255, 255, 255, 0.03)' : '1px solid transparent',
       }}
     >
       <div
-        className="flex items-center justify-between"
+        className="flex items-center justify-between transition-all duration-300"
         style={{
           maxWidth: 1440,
           margin: '0 auto',
-          padding: '16px clamp(24px, 5vw, 80px)',
+          padding: scrolled ? '8px clamp(24px, 5vw, 80px)' : '16px clamp(24px, 5vw, 80px)',
         }}
       >
         <a
-          href="#"
-          className="font-display text-white no-underline"
+          href="https://www.pausehour.in"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-display text-white no-underline flex items-center"
           style={{
-            fontSize: 20,
-            letterSpacing: '0.1em',
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
           }}
         >
-          PAUSE HOUR
+          <img
+            src="/Logo_Prime_Dark.png"
+            alt="Pause Hour"
+            style={{
+              height: scrolled ? 'clamp(60px, 6vw, 80px)' : 'clamp(85px, 9vw, 110px)',
+              width: 'auto',
+              display: 'block',
+              margin: scrolled ? '-6px 0 -12px 0' : '-10px 0 -20px 0',
+              transition: 'all 0.3s ease',
+            }}
+          />
         </a>
 
         <div className="hidden md:flex items-center" style={{ gap: 40 }}>
@@ -92,7 +91,7 @@ export default function Navigation({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
             </button>
           ))}
 
-          <button className="btn-pill" onClick={() => onOpenWaitlist()}>
+          <button className="btn-pill" onClick={() => onOpenWaitlist('Header Menu Button')}>
             Get Pass
           </button>
         </div>
@@ -101,7 +100,7 @@ export default function Navigation({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
         <button
           className="btn-pill md:hidden"
           style={{ padding: '8px 20px', fontSize: 12 }}
-          onClick={() => onOpenWaitlist()}
+          onClick={() => onOpenWaitlist('Header Mobile Menu Button')}
         >
           Get Pass
         </button>

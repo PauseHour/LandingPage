@@ -59,7 +59,7 @@ export default function Problem() {
       id="problem"
       style={{
         background: 'transparent',
-        padding: 'clamp(80px, 15vh, 160px) clamp(24px, 5vw, 80px)',
+        padding: 'clamp(40px, 8vh, 80px) clamp(24px, 5vw, 80px)',
         position: 'relative',
         zIndex: 2,
       }}
