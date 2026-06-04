@@ -118,7 +118,7 @@ export default function WireframeHotel() {
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const camY = isMobile ? -3.5 : 0;
-    camera.position.set(0, camY, isMobile ? 12 : 7.0); // Shift entire scene up on mobile
+    camera.position.set(0, camY, isMobile ? 15.5 : 7.0); // Shift entire scene up on mobile
     camera.lookAt(0, camY, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

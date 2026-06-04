@@ -79,8 +79,8 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
         </div>
 
         {/* Top row */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between" style={{ gap: 40 }}>
-          <div>
+        <div className="flex flex-col md:flex-row items-center md:items-center justify-between" style={{ gap: 40 }}>
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <a
               href="https://www.pausehour.in"
               target="_blank"
@@ -94,7 +94,7 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
                 src="/Logo_Prime_Dark.png"
                 alt="Pause Hour"
                 style={{
-                  height: 'clamp(80px, 8vw, 100px)',
+                  height: 'clamp(60px, 7vw, 85px)',
                   width: 'auto',
                   display: 'block',
                 }}
@@ -112,7 +112,7 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
             </p>
           </div>
 
-          <div className="flex flex-wrap" style={{ gap: 32 }}>
+          <div className="flex flex-wrap justify-center md:justify-end" style={{ gap: 32 }}>
             {footerLinks.map((link) => (
               <button
                 key={link.label}
@@ -139,12 +139,12 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
 
         {/* Middle row */}
         <div
-          className="flex flex-col md:flex-row items-start md:items-center justify-between"
+          className="flex flex-col md:flex-row items-center md:items-center justify-between"
           style={{ marginTop: 60, gap: 24 }}
         >
           <a
             href="mailto:founder@pausehour.in"
-            className="font-mono"
+            className="font-mono text-center md:text-left"
             style={{
               fontSize: 14,
               color: '#FF3B00',
@@ -154,7 +154,7 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
             founder@pausehour.in
           </a>
 
-          <div className="flex" style={{ gap: 24 }}>
+          <div className="flex justify-center md:justify-end" style={{ gap: 24 }}>
             {socialIcons.map((social) => (
               <a
                 key={social.name}
@@ -172,7 +172,7 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
                 aria-label={social.name}
               >
                 {social.svg}
-              </a>
+              </a >
             ))}
           </div>
         </div>

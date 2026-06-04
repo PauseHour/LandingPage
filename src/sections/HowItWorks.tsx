@@ -448,8 +448,15 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     // 1. Intersection Observer for overall section entering viewport
     const sectionObserver = new IntersectionObserver(
       ([entry]) => {
@@ -492,6 +499,7 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
       sectionObserver.disconnect();
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
@@ -501,7 +509,7 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
       id="how-it-works"
       style={{
         background: 'transparent',
-        padding: 'clamp(40px, 8vh, 80px) clamp(24px, 5vw, 80px)',
+        padding: isMobile ? '40px 16px' : 'clamp(40px, 8vh, 80px) clamp(24px, 5vw, 80px)',
         position: 'relative',
         zIndex: 2,
       }}
@@ -534,7 +542,7 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
 
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 80 }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? 40 : 80 }}>
           <div
             className="section-label"
             style={{
@@ -577,8 +585,15 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
           </p>
         </div>
 
+        {/* Mobile Journey Clock (Centered above the timeline list) */}
+        {isMobile && (
+          <div className="flex justify-center mb-10" style={{ opacity: inView ? 1 : 0, transition: 'opacity 1s ease 0.3s' }}>
+            <JourneyClock activeIndex={activeIndex} />
+          </div>
+        )}
+
         {/* Layout container */}
-        <div className="flex flex-col md:flex-row relative" style={{ gap: '60px' }}>
+        <div className="flex flex-col md:flex-row relative" style={{ gap: isMobile ? '30px' : '60px' }}>
           
           {/* Left Column: Sticky Mockup and Clock (Desktop only) */}
           <div
@@ -612,8 +627,8 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
               style={{
                 position: 'absolute',
                 top: '40px',
-                bottom: '120px',
-                left: 'clamp(16px, 3vw, 32px)',
+                bottom: isMobile ? '60px' : '120px',
+                left: isMobile ? '12px' : 'clamp(16px, 3vw, 32px)',
                 width: '2px',
                 background: 'rgba(255, 255, 255, 0.04)',
               }}
@@ -624,8 +639,8 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
               style={{
                 position: 'absolute',
                 top: '40px',
-                height: `${(activeIndex / (steps.length - 1)) * (100 - (160 / steps.length))}%`, // Dynamic height matching current active step node
-                left: 'clamp(16px, 3vw, 32px)',
+                height: `${(activeIndex / (steps.length - 1)) * (100 - (isMobile ? 100 : 160) / steps.length)}%`, // Dynamic height matching current active step node
+                left: isMobile ? '12px' : 'clamp(16px, 3vw, 32px)',
                 width: '2px',
                 background: 'linear-gradient(to bottom, #FF3B00 0%, #FF6B00 100%)',
                 boxShadow: '0 0 12px rgba(255, 59, 0, 0.6)',
@@ -638,12 +653,12 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
               return (
                 <div
                   key={i}
-                  className="step-card-trigger flex flex-col sm:flex-row relative"
+                  className="step-card-trigger flex flex-col md:flex-row relative"
                   data-index={i}
                   style={{
-                    paddingLeft: 'clamp(32px, 6vw, 80px)',
-                    paddingTop: '32px',
-                    paddingBottom: 'clamp(48px, 10vh, 120px)',
+                    paddingLeft: isMobile ? '36px' : 'clamp(32px, 6vw, 80px)',
+                    paddingTop: isMobile ? '16px' : '32px',
+                    paddingBottom: isMobile ? '40px' : 'clamp(48px, 10vh, 120px)',
                     opacity: inView ? 1 : 0,
                     transform: inView ? 'translateY(0)' : 'translateY(40px)',
                     transition: `all 0.8s cubic-bezier(0.19, 1, 0.22, 1) ${0.2 + i * 0.1}s`,
@@ -653,8 +668,8 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   <div
                     style={{
                       position: 'absolute',
-                      left: 'calc(clamp(16px, 3vw, 32px) - 5px)',
-                      top: '40px',
+                      left: isMobile ? '7px' : 'calc(clamp(16px, 3vw, 32px) - 5px)',
+                      top: isMobile ? '22px' : '40px',
                       width: '12px',
                       height: '12px',
                       borderRadius: '50%',
@@ -668,13 +683,13 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
 
                   {/* Stamp */}
                   <div
-                    className="font-mono sm:w-1/4 shrink-0"
+                    className="font-mono md:w-1/4 shrink-0"
                     style={{
                       fontSize: 14,
                       color: isActive ? '#FF3B00' : 'rgba(255, 59, 0, 0.5)',
                       letterSpacing: '0.1em',
-                      marginBottom: '12px',
-                      marginTop: '34px',
+                      marginBottom: isMobile ? '8px' : '12px',
+                      marginTop: isMobile ? '16px' : '34px',
                       fontWeight: isActive ? 'bold' : 'normal',
                       transition: 'all 0.4s ease',
                     }}
@@ -686,24 +701,24 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                   <div
                     className="card-surface grow flex flex-col"
                     style={{
-                      padding: 'clamp(16px, 4vw, 32px)',
+                      padding: isMobile ? '20px' : 'clamp(16px, 4vw, 32px)',
                       borderColor: isActive ? 'rgba(255, 59, 0, 0.6)' : 'rgba(255, 255, 255, 0.04)',
                       boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.08)' : 'none',
-                      opacity: isActive ? 1 : 0.35,
-                      transform: isActive ? 'scale(1.02)' : 'scale(0.97)',
+                      opacity: isMobile ? (isActive ? 1 : 0.75) : (isActive ? 1 : 0.35),
+                      transform: isMobile ? 'none' : (isActive ? 'scale(1.02)' : 'scale(0.97)'),
                       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
                     }}
                   >
                     <h3
                       className="font-display"
-                      style={{ fontSize: 24, color: '#FFF', marginBottom: 12 }}
+                      style={{ fontSize: 22, color: '#FFF', marginBottom: 12 }}
                     >
                       {step.title}
                     </h3>
                     <p
                       className="font-body"
                       style={{
-                        fontSize: 16,
+                        fontSize: 15,
                         color: 'rgba(245, 242, 234, 0.6)',
                         lineHeight: 1.6,
                       }}
@@ -724,15 +739,6 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                       }}
                     >
                       {step.duration}
-                    </div>
-
-                    {/* Inline Smartphone Mockup (Mobile only) */}
-                    <div className="flex md:hidden justify-center mt-6 w-full" style={{
-                      transform: isActive ? 'scale(1)' : 'scale(0.95)',
-                      opacity: isActive ? 1 : 0.7,
-                      transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
-                    }}>
-                      <PausePassCard index={i} />
                     </div>
                   </div>
                 </div>
