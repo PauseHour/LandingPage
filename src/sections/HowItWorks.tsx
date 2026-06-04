@@ -587,8 +587,19 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
 
         {/* Mobile Journey Clock (Centered above the timeline list) */}
         {isMobile && (
-          <div className="flex justify-center mb-10" style={{ opacity: inView ? 1 : 0, transition: 'opacity 1s ease 0.3s' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '24px',
+              marginBottom: '40px',
+              opacity: inView ? 1 : 0,
+              transition: 'opacity 1s ease 0.3s',
+            }}
+          >
             <JourneyClock activeIndex={activeIndex} />
+            <PausePassCard index={activeIndex} />
           </div>
         )}
 
@@ -704,7 +715,7 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
                       padding: isMobile ? '20px' : 'clamp(16px, 4vw, 32px)',
                       borderColor: isActive ? 'rgba(255, 59, 0, 0.6)' : 'rgba(255, 255, 255, 0.04)',
                       boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.08)' : 'none',
-                      opacity: isMobile ? (isActive ? 1 : 0.75) : (isActive ? 1 : 0.35),
+                      opacity: isMobile ? 1 : (isActive ? 1 : 0.35),
                       transform: isMobile ? 'none' : (isActive ? 'scale(1.02)' : 'scale(0.97)'),
                       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
                     }}

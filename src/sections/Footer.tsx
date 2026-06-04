@@ -94,7 +94,7 @@ export default function Footer({ onOpenWaitlist }: { onOpenWaitlist: (plan?: str
                 src="/Logo_Prime_Dark.png"
                 alt="Pause Hour"
                 style={{
-                  height: 'clamp(60px, 7vw, 85px)',
+                  height: 'clamp(80px, 10vw, 110px)',
                   width: 'auto',
                   display: 'block',
                 }}

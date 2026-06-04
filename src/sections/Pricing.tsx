@@ -323,12 +323,14 @@ export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: st
               <img
                 src={pass.image}
                 alt={pass.name}
-                loading="lazy"
+                loading="eager"
+                decoding="async"
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
                   transition: 'transform 0.6s cubic-bezier(0.19, 1, 0.22, 1)',
+                  WebkitTransform: 'translateZ(0)',
                 }}
               />
 
@@ -466,15 +468,20 @@ export default function Pricing({ onOpenWaitlist }: { onOpenWaitlist: (plan?: st
           }}
         >
           <div
-            className="flex flex-wrap items-center justify-center"
-            style={{ gap: 32 }}
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '24px 40px',
+            }}
           >
             {[
               { label: 'Waitlist Price Lock', desc: 'Lock today\'s low rates forever' },
               { label: 'Flexible booking', desc: 'No-charge cancellation anytime' },
               { label: 'Quality Guarantee', desc: 'We only partner with 4 & 5-star properties' },
             ].map((item) => (
-              <div key={item.label} className="flex items-center" style={{ gap: 10 }}>
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: '200px', justifyContent: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F6C324" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>

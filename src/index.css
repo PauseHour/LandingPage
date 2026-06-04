@@ -132,3 +132,51 @@
   50% { transform: scaleY(1.05); }
   100% { transform: scaleY(1); }
 }
+
+/* ============================================
+   SAFARI / iOS COMPATIBILITY FIXES
+   ============================================ */
+
+/* Force GPU compositing on images to fix Safari lazy-load bug */
+img {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Smooth momentum scrolling on iOS */
+html, body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix ticker / scroll containers for Safari */
+.ticker-wrap {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.ticker-track {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Ensure animations run on Safari with hardware acceleration */
+.sweep-line,
+.pulse-active,
+.plane-floating {
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Fix card-surface transitions for Safari */
+.card-surface {
+  -webkit-transform: translateZ(0);
+}
+
+/* Smooth page transitions */
+section {
+  -webkit-transform: translateZ(0);
+}
+
