@@ -336,19 +336,17 @@ function PausePassCard({ index, isMobile }: { index: number; isMobile?: boolean 
     return (
       <div
         style={{
-          width: '182px',
-          height: '247px',
+          width: '238px',
+          height: '323px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          overflow: 'hidden',
         }}
       >
         <div
           style={{
-            position: 'absolute',
-            transform: 'scale(0.65)',
+            transform: 'scale(0.85)',
             transformOrigin: 'center center',
             width: '280px',
             height: '380px',
