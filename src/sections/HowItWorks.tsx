@@ -29,15 +29,14 @@ const steps = [
 ];
 
 function PausePassCard({ index, isMobile }: { index: number; isMobile?: boolean }) {
-  return (
+  const cardElement = (
     <div
       style={{
-        width: '100%',
-        maxWidth: isMobile ? '140px' : '280px',
-        height: isMobile ? '200px' : '380px',
+        width: '280px',
+        height: '380px',
         background: 'linear-gradient(180deg, #141414 0%, #0a0a0a 100%)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: isMobile ? '12px' : '24px',
+        borderRadius: '24px',
         boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 59, 0, 0.03)',
         position: 'relative',
         overflow: 'hidden',
@@ -332,6 +331,37 @@ function PausePassCard({ index, isMobile }: { index: number; isMobile?: boolean 
       <div style={{ position: 'absolute', right: '-8px', bottom: '60px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--pause-void)', borderLeft: '1px solid rgba(255,255,255,0.08)', zIndex: 10 }} />
     </div>
   );
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          width: '182px',
+          height: '247px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            transform: 'scale(0.65)',
+            transformOrigin: 'center center',
+            width: '280px',
+            height: '380px',
+            flexShrink: 0,
+          }}
+        >
+          {cardElement}
+        </div>
+      </div>
+    );
+  }
+
+  return cardElement;
 }
 
 function JourneyClock({ activeIndex, isMobile, compact }: { activeIndex: number; isMobile?: boolean; compact?: boolean }) {
