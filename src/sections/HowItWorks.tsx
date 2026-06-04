@@ -334,7 +334,7 @@ function PausePassCard({ index, isMobile }: { index: number; isMobile?: boolean 
   );
 }
 
-function JourneyClock({ activeIndex, isMobile }: { activeIndex: number; isMobile?: boolean }) {
+function JourneyClock({ activeIndex, isMobile, compact }: { activeIndex: number; isMobile?: boolean; compact?: boolean }) {
   const stepDetails = [
     { hourAngle: 330, minuteAngle: 0, progress: 0.15 },
     { hourAngle: 337.5, minuteAngle: 90, progress: 0.4 },
@@ -348,8 +348,8 @@ function JourneyClock({ activeIndex, isMobile }: { activeIndex: number; isMobile
   const strokeDashoffset = circumference - (circumference * details.progress);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '6px' : '12px', position: 'relative' }}>
-      <svg width={isMobile ? '80' : '130'} height={isMobile ? '80' : '130'} viewBox="0 0 160 160">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: compact ? '0px' : (isMobile ? '6px' : '12px'), position: 'relative' }}>
+      <svg width={compact ? '55' : (isMobile ? '80' : '130')} height={compact ? '55' : (isMobile ? '80' : '130')} viewBox="0 0 160 160">
         {/* Background track circle */}
         <circle
           cx="80"
@@ -434,12 +434,14 @@ function JourneyClock({ activeIndex, isMobile }: { activeIndex: number; isMobile
           }}
         />
       </svg>
-      <div style={{ textAlign: 'center' }}>
-        <span style={{ fontSize: isMobile ? '7px' : '9px', fontFamily: '"JetBrains Mono", monospace', color: 'rgba(245, 242, 234, 0.4)', letterSpacing: '0.1em' }}>TIMELINE ACTIVE</span>
-        <div style={{ fontSize: isMobile ? '14px' : '24px', fontWeight: 'bold', color: '#FFF', fontFamily: '"Space Grotesk", sans-serif', marginTop: '2px', textShadow: '0 0 8px rgba(255,255,255,0.1)' }}>
-          {steps[activeIndex].time}
+      {!compact && (
+        <div style={{ textAlign: 'center' }}>
+          <span style={{ fontSize: isMobile ? '7px' : '9px', fontFamily: '"JetBrains Mono", monospace', color: 'rgba(245, 242, 234, 0.4)', letterSpacing: '0.1em' }}>TIMELINE ACTIVE</span>
+          <div style={{ fontSize: isMobile ? '14px' : '24px', fontWeight: 'bold', color: '#FFF', fontFamily: '"Space Grotesk", sans-serif', marginTop: '2px', textShadow: '0 0 8px rgba(255,255,255,0.1)' }}>
+            {steps[activeIndex].time}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -473,39 +475,27 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
     const handleScroll = () => {
       const isMobileView = window.innerWidth < 768;
       if (isMobileView) {
-        if (!sectionRef.current) return;
-        const rect = sectionRef.current.getBoundingClientRect();
-        const totalHeight = rect.height;
-        const windowHeight = window.innerHeight;
-        
-        // Sticky container has top: 90px
-        const scrolled = 90 - rect.top;
-        const scrollable = totalHeight - windowHeight - 90;
-        if (scrollable > 0) {
-          const progress = Math.max(0, Math.min(1, scrolled / scrollable));
-          const idx = Math.min(3, Math.floor(progress * 4));
-          setActiveIndex(idx);
-        }
-      } else {
-        const cardElements = document.querySelectorAll('.step-card-trigger');
-        if (!cardElements.length) return;
-        
-        let closestIndex = 0;
-        let closestDist = Infinity;
-        const centerY = window.innerHeight / 2.2;
-        
-        cardElements.forEach((el, index) => {
-          const rect = el.getBoundingClientRect();
-          const cardCenter = rect.top + rect.height / 2;
-          const dist = Math.abs(cardCenter - centerY);
-          if (dist < closestDist) {
-            closestDist = dist;
-            closestIndex = index;
-          }
-        });
-        
-        setActiveIndex(closestIndex);
+        return;
       }
+      
+      const cardElements = document.querySelectorAll('.step-card-trigger');
+      if (!cardElements.length) return;
+      
+      let closestIndex = 0;
+      let closestDist = Infinity;
+      const centerY = window.innerHeight / 2.2;
+      
+      cardElements.forEach((el, index) => {
+        const rect = el.getBoundingClientRect();
+        const cardCenter = rect.top + rect.height / 2;
+        const dist = Math.abs(cardCenter - centerY);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIndex = index;
+        }
+      });
+      
+      setActiveIndex(closestIndex);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -608,92 +598,139 @@ export default function HowItWorks({ onOpenWaitlist }: { onOpenWaitlist: (plan?:
         {isMobile ? (
           <div
             style={{
+              display: 'flex',
+              flexDirection: 'column',
               position: 'relative',
-              height: '240vh',
               width: '100%',
+              gap: '16px',
             }}
           >
-            <div
-              style={{
-                position: 'sticky',
-                top: '90px',
-                height: 'calc(100vh - 120px)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px 0',
-              }}
-            >
-              {/* Clock on top */}
-              <JourneyClock activeIndex={activeIndex} isMobile={true} />
+            {steps.map((step, i) => (
+              <div
+                key={i}
+                className="flex relative"
+                style={{
+                  paddingLeft: '24px',
+                  paddingBottom: '32px',
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? 'translateY(0)' : 'translateY(30px)',
+                  transition: `all 0.8s cubic-bezier(0.19, 1, 0.22, 1) ${0.1 + i * 0.1}s`,
+                }}
+              >
+                {/* Timeline vertical line */}
+                {i < steps.length - 1 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '5px',
+                      top: '24px',
+                      bottom: '0',
+                      width: '2px',
+                      background: 'rgba(255, 255, 255, 0.06)',
+                    }}
+                  />
+                )}
 
-              {/* Content in the middle (fades between steps) */}
-              <div style={{ position: 'relative', width: '100%', height: '145px' }}>
-                {steps.map((step, idx) => {
-                  const isActive = activeIndex === idx;
-                  return (
-                    <div
-                      key={idx}
-                      className="card-surface"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        opacity: isActive ? 1 : 0,
-                        transform: isActive ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
-                        pointerEvents: isActive ? 'auto' : 'none',
-                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        padding: '12px 16px',
-                        border: '1px solid rgba(255, 59, 0, 0.25)',
-                        boxShadow: isActive ? '0 10px 30px rgba(255, 59, 0, 0.15)' : 'none',
-                      }}
-                    >
-                      <h3 className="font-display" style={{ fontSize: 14, color: '#FFF', marginBottom: 4 }}>
+                {/* Timeline dot */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '0px',
+                    top: '16px',
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    background: '#FF3B00',
+                    border: '2px solid #FF3B00',
+                    boxShadow: '0 0 10px rgba(255, 59, 0, 0.6)',
+                  }}
+                />
+
+                {/* Step card */}
+                <div
+                  className="card-surface"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    border: '1px solid rgba(255, 59, 0, 0.15)',
+                    background: 'linear-gradient(180deg, #121212 0%, #080808 100%)',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
+                  }}
+                >
+                  {/* Card Header (Time, Title, and Compact JourneyClock) */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <span
+                        className="font-mono"
+                        style={{
+                          fontSize: '10px',
+                          color: '#FF3B00',
+                          fontWeight: 'bold',
+                          background: 'rgba(255, 59, 0, 0.1)',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {step.time}
+                      </span>
+                      <h3
+                        className="font-display"
+                        style={{
+                          fontSize: '16px',
+                          color: '#FFFFFF',
+                          marginTop: '6px',
+                          fontWeight: 'bold',
+                        }}
+                      >
                         {step.title}
                       </h3>
-                      <p className="font-body" style={{ fontSize: 11, color: 'rgba(245, 242, 234, 0.7)', lineHeight: 1.45 }}>
-                        {step.body}
-                      </p>
-                      <div className="font-mono" style={{ fontSize: 9, color: '#FF3B00', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {step.duration}
-                      </div>
                     </div>
-                  );
-                })}
-              </div>
+                    {/* Compact clock for this step */}
+                    <div style={{ flexShrink: 0 }}>
+                      <JourneyClock activeIndex={i} isMobile={true} compact={true} />
+                    </div>
+                  </div>
 
-              {/* Phone Screen mockup below */}
-              <div style={{ position: 'relative', width: '100%', height: '200px', display: 'flex', justifyContent: 'center' }}>
-                {steps.map((_, idx) => {
-                  const isActive = activeIndex === idx;
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        opacity: isActive ? 1 : 0,
-                        transform: isActive ? 'translateY(0) scale(1)' : 'translateY(15px) scale(0.95)',
-                        pointerEvents: isActive ? 'auto' : 'none',
-                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <PausePassCard index={idx} isMobile={true} />
-                    </div>
-                  );
-                })}
+                  {/* Body Text */}
+                  <p
+                    className="font-body"
+                    style={{
+                      fontSize: '11px',
+                      color: 'rgba(245, 242, 234, 0.65)',
+                      lineHeight: '1.5',
+                      margin: 0,
+                    }}
+                  >
+                    {step.body}
+                  </p>
+
+                  {/* Pass Mockup Screen nested directly in the card */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
+                    <PausePassCard index={i} isMobile={true} />
+                  </div>
+
+                  {/* Duration Footer */}
+                  <div
+                    className="font-mono"
+                    style={{
+                      fontSize: '9px',
+                      color: '#FF3B00',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                      paddingTop: '10px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {step.duration}
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         ) : (
           <div className="flex flex-row relative" style={{ gap: '60px' }}>
